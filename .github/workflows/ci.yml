@@ -1,0 +1,169 @@
+# This workflow contains a detailed CI workflow for a java maven build project 
+# workflow steps are labelled as below
+# 1. checkout-setup --> Checks out code from the scm repository and set up neccessary scripts i.e. versioning script 
+# 2. maven-build-scan --> Builds the project using maven and scans the project code with sonar scan 
+# 3. sonar-results ---> analyze the sonar scan results can be used for go or no go of the next workflow step
+# 4. maven-push ---> push the artifact to artifactory 
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: CI Pipeline   
+
+# Environment variables for workflow
+env: 
+  MVN_SETTINGS: ' -s .m2/settings.xml '
+  # SONAR_API_KEY: ${{ secrets.SONAR_API_KEY }}
+  # SONAR_PROJECT_KEY: ${{secrets.SONAR_PROJECT_KEY }}
+  # ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
+  # ARTIFACTORY_PASSWORD: ${{secrets.ARTIFACTORY_PASSWORD}}
+
+on:
+  push: # please conditonalize based on your branching model 
+    branches: [ main ] # e.g. [main,feature,release]
+    # Can also be triggered based on tagging, for example:
+    # push:
+    ##  tags:
+    ###   - rel-*  (See https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#onpushpull_requestbranchestags)
+  pull_request:
+    branches: [ main ] # e.g. [main,feature,release] 
+
+jobs:
+  checkout-setup: # checkout project and create workflow artifact as version.txt
+    container: 
+      image: maven:3.6.3-jdk-8 # need this container for git 2.** to work
+    runs-on: [Linux]
+    steps:
+    - name: checkout-code
+      uses: actions/checkout@v2
+      with: 
+        fetch-depth: '0'
+
+    - name: Version setup 
+      run: |
+        echo "Setting version"
+        version=$(git describe --tags --match "rel-[0-9]*-[0-9]*" | sed 's/-[^-]*//4g' | sed 's/rel-*//g' | sed 's/-/\./g')
+        echo "version=$version"
+        rm -f version.txt
+        touch version.txt
+        echo "${version}" > version.txt
+        echo "Version set to $(cat version.txt)"
+        echo "Version setup complete"
+
+    - name: upload version
+      uses: actions/upload-artifact@v2
+      with:
+        name: version # artifacts are downloaded in upcoming jobs
+        path: version.txt
+
+  maven-build: # build project and sonar scan, generates workflow artifact sonarreport
+    needs: checkout-setup
+    container: 
+      image: maven:3.6.3-jdk-8
+    runs-on: [Linux]
+
+    steps: 
+    - name: checkout code 
+      uses: actions/checkout@v2
+
+    # - name: setup java 8 
+    #   uses: actions/setup-java@v2
+    #   with: 
+    #     java-version: 8
+    #     distribution: 'temurin'
+
+    - name: Cache local maven repository # enable caching of .m2/repository
+      uses: actions/cache@v2
+      with: 
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Download version # retrieve version.txt
+      uses: actions/download-artifact@v2
+      with: 
+        name: version 
+  
+    - name: maven build # customize you build script per project requirement
+      run: | # use any build commands that works for your project, i.e. depending on how you build or define your goals, clean, compile, package, intall etc 
+        mvn versions:set -DnewVersion=$(cat version.txt)
+        mvn package --file pom.xml
+    
+  # sonar-scan: 
+  #   container: maven:3.6.3-jdk-8
+  #   runs-on: ubuntu-latest
+  #   steps: 
+  #   - name: checkout code 
+  #     uses: actions/checkout@v2
+  #   - name: sonar scan
+  #     run: |
+  #       cat version.txt
+  #       mvn versions:set -DnewVersion=$(cat version.txt)
+  #       mvn $MVN_SETTINGS verify sonar:sonar -Dsonar.host.url=localhost:9000 -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.login=${SONAR_API_KEY}
+        
+  #   - name: upload build artifact # upload all artifacts settings.xml, pom.xml and target/*.jar and target*.war
+  #     uses: actions/upload-artifact@v2
+  #     with: 
+  #       name: all-artifacts
+  #       path: |
+  #         pom.xml 
+  #         target/*.jar
+  #         target/*.war
+
+  # sonar-results: # analyze sonar scan results via consuming sonarreport from previous job
+  #   needs: maven-build-scan
+  #   runs-on: [Linux]
+  #   container: imate-analyze-scan # update with new image 
+  #   steps: 
+  #     - uses: actions/download-artifact@v2
+  #       with: 
+  #         name: all-artifacts
+  #         path: target/sonar/
+  #     - name: Sonarqube Results 
+  #       uses: # use my own action
+  #       with: 
+  #         SONAR_API_KEY: ${{ env.SONAR_API_KEY }}
+  #         SONAR_PROJECT_KEY: ${{ env.SONAR_PROJECT_KEY }}
+        
+
+  test: # implement any test jobs 
+    needs: checkout-setup
+    container: maven:3.6.3-jdk-8
+    runs-on: [self-hosted, Linux]
+    steps: 
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: Run test
+        run: |
+          mvn $MVN_SETTINGS test
+  
+#   maven-push: # push artifact to artifactory
+#     needs: sonar-results
+#     container: 
+#       image: maven:3.6.3-jdk-8
+#     runs-on: [self-hosted, Linux]
+#     steps: 
+#       - name: checkout code 
+#         uses: actions/checkout@v2
+#       - name: download version
+#         uses: actions/download-artifact@v2
+#         with: 
+#           name: version
+#       - name: download all artifacts 
+#         uses: actions/download-artifact@v2
+#         with: 
+#           name: all-artifacts
+# # deploy snapshot and release , please uncomment below if blocks per your branching model
+#       - name: Maven Deploy Snapshot # 
+#         # if: ${{ github.ref == 'refs/heads/feature' }}
+#         run: |
+#           mvn versions:set -DnewVersion=$(cat version.txt)-SNAPSHOT
+#           mvn $MVN_SETTINGS deploy
+
+
+#       - name: Maven Deploy to release #  
+#         # if: ${{ github.ref == 'refs/heads/release' }}
+#         run:  |
+#           mvn versions:set -DnewVersion=$(cat version.txt)-RELEASE
+#           mvn $MVN_SETTINGS deploy
+
+        
