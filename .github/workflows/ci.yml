@@ -30,7 +30,7 @@ jobs:
   checkout-setup: # checkout project and create workflow artifact as version.txt
     container: 
       image: maven:3.6.3-jdk-8 # need this container for git 2.** to work
-    runs-on: [Linux]
+    runs-on: ubuntu-latest
     steps:
     - name: checkout-code
       uses: actions/checkout@v2
@@ -58,7 +58,7 @@ jobs:
     needs: checkout-setup
     container: 
       image: maven:3.6.3-jdk-8
-    runs-on: [Linux]
+    runs-on: ubuntu-latest
 
     steps: 
     - name: checkout code 
