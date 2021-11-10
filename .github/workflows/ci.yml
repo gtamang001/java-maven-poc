@@ -85,6 +85,7 @@ jobs:
   
     - name: maven build # customize you build script per project requirement
       run: | # use any build commands that works for your project, i.e. depending on how you build or define your goals, clean, compile, package, intall etc 
+        cd my-app
         mvn versions:set -DnewVersion=$(cat version.txt)
         mvn package --file pom.xml
     
