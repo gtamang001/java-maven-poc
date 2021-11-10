@@ -129,12 +129,14 @@ jobs:
   test: # implement any test jobs 
     needs: checkout-setup
     container: maven:3.6.3-jdk-8
-    runs-on: [self-hosted, Linux]
+    runs-on: ubuntu-latest
     steps: 
       - name: checkout code
         uses: actions/checkout@v2
       - name: Run test
-        run: mvn test
+        run: |
+          cd my-app
+          mvn test
   
 #   maven-push: # push artifact to artifactory
 #     needs: sonar-results
