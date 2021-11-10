@@ -133,8 +133,7 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v2
       - name: Run test
-        run: |
-          mvn $MVN_SETTINGS test
+        run: mvn test
   
 #   maven-push: # push artifact to artifactory
 #     needs: sonar-results
