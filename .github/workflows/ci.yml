@@ -17,11 +17,7 @@ env:
   # ARTIFACTORY_PASSWORD: ${{secrets.ARTIFACTORY_PASSWORD}}
 
 on:
-  push: # please conditonalize based on your branching model 
-    branches: [ main ] # e.g. [main,feature,release]
-    # Can also be triggered based on tagging, for example:
-    # push:
-    ##  tags:
+  workflow_dispatch: 
     ###   - rel-*  (See https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#onpushpull_requestbranchestags)
   pull_request:
     branches: [ main ] # e.g. [main,feature,release] 
