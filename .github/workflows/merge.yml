@@ -1,0 +1,22 @@
+name: Merge branches 
+on: 
+  push: 
+    branches: 
+      - main
+jobs: 
+  merge: 
+    runs-on: ubuntu-latest 
+    steps: 
+    - name: checkout code 
+      uses: actions/checkout@v2 
+    - name: Set config 
+      run: |
+        git config --local user.email "ganga.bomzan@gmail.com"
+        git config --local user.name "Ganga Tamang"
+    - name: perform merge 
+      run: |
+        git fetch --unshallow
+        git checkout uat
+        git pull
+        git merge --no-ff main -m "Auto-merge master back to dev"
+        git push
