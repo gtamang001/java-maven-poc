@@ -11,4 +11,6 @@ jobs:
       run: |
         echo "running merge workflow"
         echo "testing"
-        git clone 
+        git checkout uat
+        git merge master 
+        git push origin
