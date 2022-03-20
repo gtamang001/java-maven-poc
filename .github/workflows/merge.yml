@@ -14,5 +14,8 @@ jobs:
         echo "running merge workflow"
         echo "testing"
         git checkout uat
-        git merge master 
-        git push origin
+        git checkout -b master
+        git pull origin
+        git checkout uat 
+        git merge master
+        git push origin uat 
