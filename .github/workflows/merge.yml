@@ -15,7 +15,7 @@ jobs:
         echo "testing"
         git checkout uat
         git checkout -b master
-        git pull origin
+        git pull origin master
         git checkout uat 
         git merge master
         git push origin uat 
