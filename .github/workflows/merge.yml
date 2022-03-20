@@ -1,0 +1,13 @@
+name: Merge branches 
+on: 
+  push: 
+    branches: 
+      - uat 
+jobs: 
+  merge: 
+    runs-on: ubuntu-latest 
+    steps: 
+      run: |
+        echo "running merge workflow"
+        echo "testing"
+        git clone 
