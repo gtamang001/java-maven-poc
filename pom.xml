@@ -83,9 +83,21 @@
           <artifactId>jib-maven-plugin</artifactId>
           <version>3.2.0</version>
           <configuration>
+            <from>
+              <image>
+                tomcat:8.0-alpine
+              </image>
+            </from>
             <to>
-              <image>java-maven-poc</image>
+              <image>registry.hub.docker.com/gtamang/java-maven-poc</image>
             </to>
+            <container>
+              <ports>
+                <port>
+                  8080
+                </port>
+              </ports>
+            </container>
           </configuration>
           <executions>
             <execution>
@@ -100,3 +112,4 @@
     </pluginManagement>
   </build>
 </project>
+<!-- https://hub.docker.com/repository/docker/gtamang/debian-ant-curl -->
