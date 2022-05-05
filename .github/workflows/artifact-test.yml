@@ -5,25 +5,25 @@ on:
       - test 
 jobs: 
   maven-build: 
-  runs-on: ubuntu-latest
-  steps: 
-    - name: checkout code 
-      uses: actions/checkout@v2
-    - name: maven build 
-      run: |
-        mvn package 
-    - name: check target folder and add more stuff to it 
-      run: |
-        cd target && ls -la 
-        cd target && mkdir random
-        cp pom.xml target/random/pom.tar 
-        cp test.sh target/random1/test.war 
-        echo "check again"
-        cd target && ls -R 
-    - name: upload everything 
-      uses: actions/upload-artifact@v2
-      with: 
-        path: target/
+    runs-on: ubuntu-latest
+    steps: 
+      - name: checkout code 
+        uses: actions/checkout@v2
+      - name: maven build 
+        run: |
+          mvn package 
+      - name: check target folder and add more stuff to it 
+        run: |
+          cd target && ls -la 
+          cd target && mkdir random
+          cp pom.xml target/random/pom.tar 
+          cp test.sh target/random1/test.war 
+          echo "check again"
+          cd target && ls -R 
+      - name: upload everything 
+        uses: actions/upload-artifact@v2
+        with: 
+          path: target/
   download-artifact: 
     needs: maven-build 
     runs-on: ubuntu-latest 
