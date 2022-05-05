@@ -16,6 +16,7 @@ jobs:
         run: |
           cd target && ls -la 
           cd ${{github.workspace}}/target && mkdir random
+          cd ${{github.workspace}}/target && mkdir random1
           cp ${{github.workspace}}/pom.xml ${{github.workspace}}/target/random/pom.tar 
           cp ${{github.workspace}}/test.sh ${{github.workspace}}/target/random1/test.war 
           echo "check again"
