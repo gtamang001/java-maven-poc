@@ -35,4 +35,4 @@ jobs:
           path: .
       - name: check all the files 
         run: |
-          cd target && ls -R 
+          ls -ll
