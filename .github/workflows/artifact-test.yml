@@ -31,7 +31,8 @@ jobs:
     steps: 
       - name: download artifacts 
         uses: actions/download-artifact@v2
-        path: .
+        with: 
+          path: .
       - name: check all the files 
         run: |
           cd target && ls -R 
