@@ -16,8 +16,8 @@ jobs:
         run: |
           cd target && ls -la 
           cd ${{github.workspace}}/target && mkdir random
-          cp ${{github.workspace}}/pom.xml target/random/pom.tar 
-          cp ${{github.workspace}}/test.sh target/random1/test.war 
+          cp ${{github.workspace}}/pom.xml ${{github.workspace}}/target/random/pom.tar 
+          cp ${{github.workspace}}/test.sh ${{github.workspace}}/target/random1/test.war 
           echo "check again"
           cd ${{github.workspace}}/target && ls -R 
       - name: upload everything 
