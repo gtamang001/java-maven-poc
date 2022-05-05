@@ -15,11 +15,11 @@ jobs:
       - name: check target folder and add more stuff to it 
         run: |
           cd target && ls -la 
-          cd target && mkdir random
-          cp pom.xml target/random/pom.tar 
-          cp test.sh target/random1/test.war 
+          cd ${{github.workspace}}/target && mkdir random
+          cp ${{github.workspace}}/pom.xml target/random/pom.tar 
+          cp ${{github.workspace}}/test.sh target/random1/test.war 
           echo "check again"
-          cd target && ls -R 
+          cd ${{github.workspace}}/target && ls -R 
       - name: upload everything 
         uses: actions/upload-artifact@v2
         with: 
