@@ -35,4 +35,4 @@ jobs:
           path: .
       - name: check all the files 
         run: |
-          ls -ll
+          cd artifact && ls -R 
